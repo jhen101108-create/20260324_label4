@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>實驗室標籤大師 2026 神級系統版</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+    <style id="dynamicPageSize"></style>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, '微軟正黑體', sans-serif; background-color: #e9ecef; padding: 15px 10px; margin: 0; color: #333; display: flex; justify-content: center; }
+        .ui-container { width: 100%; max-width: 420px; background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
+        h2 { text-align: center; font-size: 20px; font-weight: bold; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: #2c3e50; }
+        
+        .form-group { margin-bottom: 10px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 13px; color: #34495e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        input, select { width: 100%; padding: 8px 6px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 14px; background-color: #f8f9fa; font-family: inherit;}
+        input:focus, select:focus { outline: none; border-color: #3498db; background-color: #fff; box-shadow: 0 0 0 2px rgba(52,152,219,0.2); }
+        .row { display: flex; gap: 8px; }
+        .row .form-group { flex: 1; min-width: 0; }
+        .combo-box select { margin-bottom: 4px; background-color: #e8f4f8; color: #0984e3; font-weight: bold; border: 1px solid #74b9ff; cursor: pointer; }
+        .btn-small { width: auto; flex: none; padding: 4px 8px; font-size: 12px; margin-top: 0; border-radius: 4px; color: #fff; border: none; cursor: pointer;}
+        .btn-today { background-color: #e74c3c; }
+        .btn-size { background-color: #9b59b6; }
+        
+        .tabs { display: flex; margin-top: 15px; border-bottom: 2px solid #3498db; }
+        .tab-btn { flex: 1; text-align: center; padding: 8px 4px; cursor: pointer; background: #ecf0f1; font-weight: bold; font-size: 13px; color: #7f8c8d; border-radius: 8px 8px 0 0; transition: 0.3s; margin: 0 1px; }
+        .tab-btn.active { background: #3498db; color: #fff; }
+        .tab-content { display: none; padding: 15px 0 0 0; }
+        .tab-content.active { display: block; }
+
+        .sop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-sop { padding: 10px 4px; font-size: 13px; font-weight: bold; color: white; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-sop:active { transform: scale(0.97); box-shadow: none; }
+        .bg-sys { background: #34495e; } .bg-spec { background: #8e44ad; } .bg-lin { background: #2980b9; } 
+        .bg-acc { background: #c0392b; } .bg-prec { background: #27ae60; } .bg-stab { background: #d35400; } .bg-lim { background: #7f8c8d; }
+        .bg-rt1 { background: #16a085; } .bg-rt2 { background: #2980b9; } .bg-rt3 { background: #8e44ad; } .bg-rt4 { background: #f39c12; }
+
+        .transfer-box { background: #e8f4f8; border: 2px dashed #3498db; padding: 10px; border-radius: 8px; margin-top: 15px; }
+        .transfer-title { text-align: center; font-size: 13px; font-weight: bold; color: #2980b9; margin-bottom: 8px; }
+        .action-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .btn-action { flex: 1 1 30%; padding: 10px 4px; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-action:active { transform: scale(0.97); }
+        .btn-qr { background-color: #8e44ad; }
+        .btn-json { background-color: #f39c12; }
+        
+        .main-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-print { background-color: #2ecc71; flex: 2; padding: 12px; font-size: 15px; border-radius: 6px; color: white; border: none; font-weight: bold; cursor: pointer;} 
+        .btn-clear { background-color: #e74c3c; flex: 1; border-radius: 6px; color: white; border: none; font-weight: bold; cursor: pointer;}
+
+        #printArea { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px; }
+        .label-box { background: white; border: 1px dashed #e74c3c; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; color: black; }
+        .btn-delete { position: absolute; bottom: 2px; right: 2px; background: #e74c3c; color: white; border: none; border-radius: 4px; width: 20px; height: 20px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+
+        /* 🌟 獨立的標籤樣式 (解決列印問題) */
+        .badge-vial { background: #e74c3c; color: white; border-radius: 3px; padding: 0 4px; display: inline-block; font-weight: bold; line-height: 1.1; margin-top: 1px; margin-left: 4px; }
+        .badge-stock { background: black; color: white; border-radius: 3px; padding: 0 3px; display: inline-block; font-weight: bold; line-height: 1.1; margin-top: 1px; margin-left: 2px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,255,255,0.2); text-align: center; }
+        .btn-close-modal { padding: 10px 30px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; background: #e74c3c; color: white; cursor: pointer; }
+        #videoElement { width: 100%; max-width: 350px; border-radius: 8px; transform: scaleX(-1); }
+
+        #scrollTopBtn { display: none; position: fixed; bottom: 20px; right: 20px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 100; transition: 0.3s; }
+        #scrollTopBtn:active { transform: scale(0.9); }
+
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .hide-on-print { display: none !important; }
+            .ui-container { max-width: none; background: transparent; padding: 0; border: none; box-shadow: none; }
+            #printArea { display: block; margin: 0; }
+            .label-box { border: none; page-break-after: always; margin: 0; }
+
+            /* 🌟 核心修復：強制瀏覽器列印所有背景色 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* 🌟 黑白標籤機終極優化：強制變為純黑底白字，保證銳利度 */
+            .badge-vial, .badge-stock {
+                background-color: black !important;
+                color: white !important;
+                border: 1px solid black !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ui-container">
+    <div class="hide-on-print">
+        <h2>🧪 實驗室標籤大師 <span style="font-size: 12px; color: #e74c3c;">V3.0 神級系統版</span></h2>
+        
+        <div style="background: #fdfbf7; padding: 10px; border-radius: 8px; border: 1px solid #e2d9c8;">
+            <div style="font-size: 12px; color: #d35400; font-weight: bold; margin-bottom: 8px; text-align: center;">
+                💡 系統具備防當機自動存檔。預覽區會即時連動。
+            </div>
+            
+            <div class="form-group" style="background: #e1f5fe; padding: 6px; border-radius: 6px; border: 1px dashed #2980b9;">
+                <label style="color: #0277bd;">💊 標的成分 / 溶劑 (選填，手動清空)</label>
+                <input type="text" id="targetSolvent" placeholder="如：Caffeine、Ethanol..." style="background: white;" oninput="renderPreview()">
+            </div>
+
+            <div class="row">
+                <div class="form-group"><label>👤 人員</label><input type="text" id="userName" placeholder="如：詠" oninput="renderPreview()"></div>
+                <div class="form-group"><label>🏷️ 原料、產品代號</label><input type="text" id="code" value="TA03" oninput="renderPreview()"></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>🔢 起始批號</label><input type="text" id="startBatchNum" placeholder="不須輸入代號" oninput="renderPreview()"></div>
+                <div class="form-group"><label>📦 連續批數</label><input type="number" id="batchCount" value="1" min="1" oninput="renderPreview()"></div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>📅 配製日期</label>
+                    <div style="display: flex; gap: 4px;">
+                        <input type="date" id="prepDate" onchange="renderPreview()">
+                        <button class="btn-small btn-today" onclick="setToday()">今</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>⏳ 有效日期</label>
+                    <input type="date" id="expDate" onchange="renderPreview()">
+                </div>
+            </div>
+            
+            <div style="margin-top: 10px; background: #e8f4f8; padding: 8px; border-radius: 6px; font-weight: bold; color: #2980b9;">
+                <label style="margin: 0; cursor: pointer; display: flex; align-items: flex-start; gap: 6px; font-size: 12px; line-height: 1.4; white-space: normal;">
+                    <input type="checkbox" id="useChromatography" style="width: 16px; height: 16px; margin-top: 1px;" onchange="renderPreview()"> 
+                    <span>☑ 本次使用層析系統<br><span style="color:#7f8c8d; font-size:11px;">(打勾產生 Vial 區並自動補 Blank)</span></span>
+                </label>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <label style="margin: 0;">📏 尺寸(mm):</label>
+                <div style="display: flex; gap: 4px;"><button class="btn-small btn-size" onclick="setLabelSize(75, 30)">大(75x30)</button><button class="btn-small btn-size" onclick="setLabelSize(25, 15)">小(25x15)</button></div>
+            </div>
+            <div class="row" style="margin-top: 5px;">
+                <input type="number" id="labelWidth" value="25" style="text-align: center;" onchange="renderPreview()"> x 
+                <input type="number" id="labelHeight" value="15" style="text-align: center;" onchange="renderPreview()">
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <label style="margin: 0;">🖨️ 列印微調(mm):</label>
+                <span style="font-size:11px; color:#7f8c8d;">(依印表機性格調整)</span>
+            </div>
+            <div class="row" style="margin-top: 5px;">
+                <div style="display:flex; align-items:center; flex:1; font-size:13px; font-weight:bold; color:#555;">上移 <input type="number" id="offsetUp" value="0" min="0" step="0.5" style="text-align: center; margin-left:4px;" onchange="renderPreview()"></div>
+                <div style="display:flex; align-items:center; flex:1; font-size:13px; font-weight:bold; color:#555;">下移 <input type="number" id="offsetDown" value="0" min="0" step="0.5" style="text-align: center; margin-left:4px;" onchange="renderPreview()"></div>
+            </div>
+            <div class="row" style="margin-top: 5px;">
+                <div style="display:flex; align-items:center; flex:1; font-size:13px; font-weight:bold; color:#555;">左移 <input type="number" id="offsetLeft" value="0" min="0" step="0.5" style="text-align: center; margin-left:4px;" onchange="renderPreview()"></div>
+                <div style="display:flex; align-items:center; flex:1; font-size:13px; font-weight:bold; color:#555;">右移 <input type="number" id="offsetRight" value="0" min="0" step="0.5" style="text-align: center; margin-left:4px;" onchange="renderPreview()"></div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-btn active" onclick="switchTab(1)">📝 自訂</div>
+            <div class="tab-btn" onclick="switchTab(2)">🚀 確效專區</div>
+            <div class="tab-btn" onclick="switchTab(3)">🧪 日常檢驗</div>
+        </div>
+
+        <div id="tab1" class="tab-content active">
+            <div class="form-group combo-box">
+                <label>🔬 檢驗項目</label>
+                <select id="itemSelect" onchange="fillInput('item', this.value)">
+                    <option value="">▼ 快速帶入 ▼</option>
+                    <option value="System">System</option>
+                    <option value="linearity">linearity</option>
+                    <option value="accuracy">accuracy</option>
+                    <option value="precision">precision</option>
+                    <option value="intermediate precision">intermediate precision</option>
+                    <option value="solution stability">solution stability</option>
+                    <option value="specificity">specificity</option>
+                    <option value="LOD">LOD</option>
+                    <option value="LOQ">LOQ</option>
+                    <option value="assay">assay</option>
+                    <option value="CU">CU</option>
+                    <option value="DISS">DISS</option>
+                    <option value="Impurity">Impurity</option>
+                    <option value="ID">ID</option>
+                    <option value="Limit">Limit</option>
+                    <option value="Residue solvent">Residue solvent</option>
+                </select>
+                <input type="text" id="item">
+            </div>
+            <div class="form-group combo-box">
+                <label>🧪 溶液字首</label>
+                <select id="sampleSelect" onchange="fillInput('sampleType', this.value)">
+                    <option value="">▼ 快速帶入 ▼</option>
+                    <option value="Sa">Sa</option>
+                    <option value="STD">STD</option>
+                    <option value="BK">BK</option>
+                    <option value="Mobile phase">Mobile phase</option>
+                    <option value="Buffer">Buffer</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Solution">Solution</option>
+                    <option value="Diluent">Diluent</option>
+                    <option value="Resolution">Resolution</option>
+                    <option value="System suitability solution">System suitability solution</option>
+                </select>
+                <input type="text" id="sampleType" value="Sa">
+            </div>
+            <div class="row">
+                <div class="form-group"><label>🔢 起始號</label><input type="text" id="startNum"></div>
+                <div class="form-group"><label>🖨️ 印幾張</label><input type="number" id="printCount" value="1" min="1"></div>
+            </div>
+            <div class="form-group"><label>💧 濃度</label><input type="text" id="conc"></div>
+            <button class="btn-action" style="width: 100%; margin-top: 10px; background-color: #3498db;" onclick="addCustomLabel()">➕ 加入預覽列</button>
+        </div>
+
+        <div id="tab2" class="tab-content">
+            <div class="sop-grid">
+                <button class="btn-sop bg-sys" onclick="addSOP('system')">1. System</button>
+                <button class="btn-sop bg-spec" onclick="addSOP('specificity')">2. Specificity</button>
+                <button class="btn-sop bg-lin" onclick="addSOP('linearity')">3. Linearity</button>
+                <button class="btn-sop bg-acc" onclick="addSOP('accuracy')">4. Accuracy</button>
+                <button class="btn-sop bg-prec" onclick="addSOP('precision')">5. Precision</button>
+                <button class="btn-sop bg-prec" onclick="addSOP('intermediate')">6. Inter. Prec.</button>
+                <button class="btn-sop bg-stab" onclick="addSOP('stability')">7. Stability</button>
+                <button class="btn-sop bg-lim" onclick="addSOP('lod')">8. LOD</button>
+                <button class="btn-sop bg-lim" onclick="addSOP('loq')">9. LOQ</button>
+            </div>
+        </div>
+
+        <div id="tab3" class="tab-content">
+            <div class="sop-grid">
+                <button class="btn-sop bg-rt1" onclick="addRoutine('Assay', 2)">1. Assay</button>
+                <button class="btn-sop bg-rt1" onclick="addRoutine('CU', 10)">2. CU</button>
+                <button class="btn-sop bg-rt1" onclick="addRoutine('CU S2', 20)">3. CU S2</button>
+                <button class="btn-sop bg-rt2" onclick="addRoutine('DISS', 6)">4. DISS</button>
+                <button class="btn-sop bg-rt2" onclick="addRoutine('DISS S2', 6)">5. DISS S2</button>
+                <button class="btn-sop bg-rt2" onclick="addRoutine('DISS S3', 12)">6. DISS S3</button>
+                <button class="btn-sop bg-rt3" onclick="addRoutine('ID', 1, false)">7. ID</button>
+                <button class="btn-sop bg-rt4" onclick="addRoutine('Impurity', 2)">8. Impurity</button>
+                <button class="btn-sop bg-rt4" onclick="addRoutine('BU', 3)">9. BU</button>
+                <button class="btn-sop bg-rt4" onclick="addRoutine('Limit', 2)">10. Limit</button>
+                <button class="btn-sop bg-rt4" onclick="addRoutine('Residue solvent', 2)">11. Residue Sol.</button>
+            </div>
+        </div>
+
+        <input type="file" id="jsonInput" accept=".json" style="display:none" onchange="importJSON(event)">
+        <input type="file" id="qrImageInput" accept="image/*" style="display:none" onchange="readQRImage(event)">
+
+        <div class="transfer-box">
+            <div class="transfer-title">📡 跨平台傳送門 / 母版記憶系統</div>
+            <div class="action-group" style="margin-bottom: 5px;">
+                <button class="btn-action btn-qr" style="flex: 1 1 100%; font-size: 14px; background:#9b59b6;" onclick="generateQR()">📲 1.手機填妥：產生分享 QR 碼 (含抬頭資訊)</button>
+            </div>
+            <div class="action-group">
+                <button class="btn-action btn-qr" onclick="startScanner()">📹 2.電腦：開啟鏡頭掃描</button>
+                <button class="btn-action btn-qr" style="background:#8e44ad;" onclick="document.getElementById('qrImageInput').click()">🖼️ 2.電腦：讀圖片</button>
+                <button class="btn-action btn-json" onclick="exportJSON()">💾 存為母版</button>
+                <button class="btn-action btn-json" onclick="document.getElementById('jsonInput').click()">📂 讀取母版</button>
+            </div>
+        </div>
+
+        <div class="main-actions">
+            <button class="btn-clear" onclick="clearPreview()">🗑️ 全部清空</button>
+            <button class="btn-print" onclick="printLabels()">🖨️ 電腦直接列印</button>
+        </div>
+        
+    </div> 
+    <div id="printArea"></div>
+</div>
+
+<button id="scrollTopBtn" class="hide-on-print" onclick="window.scrollTo({top:0, behavior:'smooth'})">⬆️</button>
+
+<div id="qrModal" class="modal">
+    <div style="color: white; margin-bottom: 10px; font-weight: bold; text-align: center;">
+        請將此條碼對準電腦視訊鏡頭<br>
+        <span id="qrPageInfo" style="color: #f1c40f; font-size: 20px;">第 1 / 1 頁</span>
+    </div>
+    <div class="modal-content"><canvas id="qrCanvas"></canvas></div>
+    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <button class="btn-action" style="background:#2980b9; padding: 12px 25px; font-size: 16px;" onclick="prevQR()">⬅️ 上一頁</button>
+        <button class="btn-action" style="background:#2980b9; padding: 12px 25px; font-size: 16px;" onclick="nextQR()">下一頁 ➡️</button>
+    </div>
+    <button class="btn-close-modal" onclick="closeQR()">關閉</button>
+</div>
+
+<div id="scannerModal" class="modal">
+    <div style="color: white; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 18px;">掃描接收站</div>
+    <div class="modal-content" style="padding: 5px; background: #333;"><video id="videoElement" autoplay playsinline></video></div>
+    <div id="scanStatusText" style="color: #f1c40f; margin-bottom: 15px; font-size: 16px; font-weight: bold; text-align: center;">請將手機畫面上的條碼對準鏡頭</div>
+    <button class="btn-close-modal" onclick="stopScanner()">取消掃描</button>
+</div>
+
+<script>
+    let globalLabels = [];
+    let videoStream = null;
+    let scanningActive = false;
+
+    window.onload = function() {
+        const savedName = localStorage.getItem("labUserName");
+        if (savedName) document.getElementById("userName").value = savedName;
+
+        const backup = localStorage.getItem("labMasterBackup");
+        if (backup) {
+            try {
+                const parsed = JSON.parse(backup);
+                if (parsed.labels && parsed.labels.length > 0) {
+                    if (confirm("💡 系統發現您上次有未清除的標籤進度，請問要恢復嗎？\n(按確定恢復，按取消則清除重來)")) {
+                        globalLabels = parsed.labels;
+                        if(parsed.inputs) {
+                            if(parsed.inputs.userName) document.getElementById("userName").value = parsed.inputs.userName;
+                            if(parsed.inputs.code) document.getElementById("code").value = parsed.inputs.code;
+                            if(parsed.inputs.startBatchNum) document.getElementById("startBatchNum").value = parsed.inputs.startBatchNum;
+                            if(parsed.inputs.batchCount) document.getElementById("batchCount").value = parsed.inputs.batchCount;
+                            if(parsed.inputs.prepDate) document.getElementById("prepDate").value = parsed.inputs.prepDate;
+                            if(parsed.inputs.expDate) document.getElementById("expDate").value = parsed.inputs.expDate;
+                            if(parsed.inputs.targetSolvent) document.getElementById("targetSolvent").value = parsed.inputs.targetSolvent;
+                            if(parsed.inputs.useChromatography !== undefined) document.getElementById("useChromatography").checked = parsed.inputs.useChromatography;
+                            if(parsed.inputs.labelWidth) document.getElementById("labelWidth").value = parsed.inputs.labelWidth;
+                            if(parsed.inputs.labelHeight) document.getElementById("labelHeight").value = parsed.inputs.labelHeight;
+                            
+                            if(parsed.inputs.offsetUp !== undefined) document.getElementById("offsetUp").value = parsed.inputs.offsetUp;
+                            if(parsed.inputs.offsetDown !== undefined) document.getElementById("offsetDown").value = parsed.inputs.offsetDown;
+                            if(parsed.inputs.offsetLeft !== undefined) document.getElementById("offsetLeft").value = parsed.inputs.offsetLeft;
+                            if(parsed.inputs.offsetRight !== undefined) document.getElementById("offsetRight").value = parsed.inputs.offsetRight;
+                        }
+                        renderPreview();
+                    } else {
+                        localStorage.removeItem("labMasterBackup");
+                    }
+                }
+            } catch(e) {
+                console.error("Backup parse error", e);
+            }
+        }
+    };
+
+    window.onscroll = function() {
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            document.getElementById("scrollTopBtn").style.display = "block";
+        } else {
+            document.getElementById("scrollTopBtn").style.display = "none";
+        }
+    };
+
+    function switchTab(t) {
+        document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i + 1 === t));
+        document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i + 1 === t));
+    }
+
+    function setToday() {
+        const d = new Date(); 
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        document.getElementById("prepDate").value = `${yyyy}-${mm}-${dd}`;
+        renderPreview();
+    }
+
+    function setLabelSize(w, h) {
+        document.getElementById("labelWidth").value = w; document.getElementById("labelHeight").value = h;
+        renderPreview(); 
+    }
+
+    function fillInput(i, v) { if (v) document.getElementById(i).value = v; document.getElementById(i + "Select").selectedIndex = 0; }
+
+    function pushLabels(newLabels) {
+        const targetSolvent = document.getElementById("targetSolvent").value.trim();
+        if (targetSolvent) {
+            newLabels.forEach(l => {
+                if(l.item && !l.item.includes(`(${targetSolvent})`)) {
+                    l.item = `${l.item} (${targetSolvent})`;
+                }
+            });
+        }
+
+        const useChroma = document.getElementById("useChromatography");
+        const isChromaChecked = useChroma && useChroma.checked;
+
+        if (isChromaChecked) {
+            const finalSolutions = newLabels.filter(l => !l.sample.toLowerCase().includes('stock'));
+            
+            if (finalSolutions.length > 0) {
+                let vialLabels = [];
+                vialLabels = finalSolutions.map(l => ({ ...l, sample: `${l.sample} (vial)` }));
+
+                const itemContext = finalSolutions[0].item || "";
+                vialLabels.unshift({ item: itemContext, sample: "Blank (vial)", conc: "" });
+                
+                newLabels.push(...vialLabels);
+            }
+        }
+        
+        globalLabels.push(...newLabels);
+        renderPreview();
+    }
+
+    function addCustomLabel() {
+        const item = document.getElementById("item").value.trim(), conc = document.getElementById("conc").value.trim();
+        const sampleType = document.getElementById("sampleType").value.trim(), startNumStr = document.getElementById("startNum").value.trim();
+        const count = parseInt(document.getElementById("printCount").value) || 1;
+        let inputs = [];
+        for (let i = 0; i < count; i++) {
+            inputs.push({ item: item, sample: sampleType ? `${sampleType}${startNumStr !== "" ? parseInt(startNumStr) + i : ""}` : "", conc: conc });
+        }
+        pushLabels(inputs); 
+    }
+
+    function addSOP(type) {
+        let inputs = []; 
+        let stocks = [], sas = [];
+        switch(type) {
+            case 'system': 
+                let sysStg = prompt("【System】STD 有幾個 Stock 階段？(若無填0)", "1"); if (sysStg === null) return; 
+                for(let i=1; i<=parseInt(sysStg||0); i++) inputs.push({item: "System", sample: `STD stock ${i}`, conc: ""}); 
+                inputs.push({item: "System", sample: "STD", conc: ""}); 
+                break;
+            case 'specificity': 
+                inputs.push({item: "specificity", sample: "Blank", conc: ""}); 
+                let pStg = prompt("【Specificity】Placebo 有幾個 Stock 階段？(若無填0)", "1"); if (pStg === null) return; 
+                for(let i=1; i<=parseInt(pStg||0); i++) inputs.push({item: "specificity", sample: `Placebo stock ${i}`, conc: ""}); 
+                inputs.push({item: "specificity", sample: "Placebo", conc: ""}); 
+                let sStg = prompt("【Specificity】樣品有幾個 Stock 階段？", "1"); if (sStg === null) return; 
+                let sCount = prompt("樣品有幾支？", "1"); if (sCount === null) return; 
+                for(let s=1; s<=parseInt(sStg||1); s++){ for(let i=1; i<=parseInt(sCount||1); i++){ stocks.push({item: "specificity", sample: `Sa${i} stock ${s}`, conc: ""}); } } 
+                for(let i=1; i<=parseInt(sCount||1); i++){ sas.push({item: "specificity", sample: `Sa${i}`, conc: ""}); } 
+                inputs.push(...stocks, ...sas); 
+                break;
+            case 'linearity': 
+                let linStg = prompt("【Linearity】API 有幾個 Stock 階段？(若無填0)", "1"); if (linStg === null) return; 
+                for(let i=1; i<=parseInt(linStg||0); i++) inputs.push({item: "linearity", sample: `stock ${i}`, conc: ""}); 
+                let linConcs = prompt("請輸入 5 個線性濃度 (用逗號分隔)：", "50%,75%,100%,125%,150%"); if (linConcs === null) return; 
+                let linArr = linConcs.split(","); 
+                for(let i=0; i<5; i++) inputs.push({item: "linearity", sample: linArr[i] ? linArr[i].trim() : "", conc: ""}); 
+                break;
+            case 'accuracy': 
+                let accApi = prompt("【Accuracy】API 有幾個 Stock 階段？(若無填0)", "1"); if (accApi === null) return; 
+                for(let i=1; i<=parseInt(accApi||0); i++) inputs.push({item: "accuracy", sample: `API stock ${i}`, conc: ""}); 
+                let accPla = prompt("【Accuracy】Placebo 有幾個 Stock 階段？(若無填0)", "1"); if (accPla === null) return; 
+                for(let i=1; i<=parseInt(accPla||0); i++) inputs.push({item: "accuracy", sample: `Placebo stock ${i}`, conc: ""}); 
+                let accConcs = prompt("3 個準確度濃度 (用逗號分隔)：", "80%,100%,120%"); if (accConcs === null) return; 
+                let accArr = accConcs.split(","); 
+                let accStg = prompt("準確度樣品有幾個 Stock 階段？", "1"); if(accStg===null)return; 
+                for(let s=1; s<=parseInt(accStg||1); s++){ 
+                    for(let i=0; i<3; i++){ 
+                        for(let j=0; j<3; j++) stocks.push({item: "accuracy", sample: `${accArr[i] ? accArr[i].trim() : ""} Sa${j+1} stock ${s}`, conc: ""}); 
+                    } 
+                } 
+                for(let i=0; i<3; i++){ 
+                    for(let j=0; j<3; j++) sas.push({item: "accuracy", sample: `${accArr[i] ? accArr[i].trim() : ""} Sa${j+1}`, conc: ""}); 
+                } 
+                inputs.push(...stocks, ...sas); 
+                break;
+            case 'precision': 
+                let prStg = prompt("【Precision】樣品有幾個 Stock 階段？", "1"); if(prStg===null)return; 
+                for(let s=1; s<=parseInt(prStg||1); s++){ for(let i=1; i<=6; i++) stocks.push({item: "precision", sample: `Sa${i} stock ${s}`, conc: ""}); } 
+                for(let i=1; i<=6; i++) sas.push({item: "precision", sample: `Sa${i}`, conc: ""}); 
+                inputs.push(...stocks, ...sas); 
+                break;
+            case 'intermediate': 
+                let inStg = prompt("【Intermediate】樣品有幾個 Stock 階段？", "1"); if(inStg===null)return; 
+                for(let s=1; s<=parseInt(inStg||1); s++){ for(let i=1; i<=6; i++) stocks.push({item: "intermediate precision", sample: `Sa${i} stock ${s}`, conc: ""}); } 
+                for(let i=1; i<=6; i++) sas.push({item: "intermediate precision", sample: `Sa${i}`, conc: ""}); 
+                inputs.push(...stocks, ...sas); 
+                break;
+            case 'stability': 
+                let stabStg = prompt("【Stability】STD 有幾個 Stock 階段？(若無填0)", "1"); if (stabStg === null) return; 
+                for(let i=1; i<=parseInt(stabStg||0); i++) inputs.push({item: "solution stability", sample: `STD stock ${i}`, conc: ""}); 
+                inputs.push({item: "solution stability", sample: "STD", conc: ""}); 
+                let stSaStg = prompt("【Stability】樣品有幾個 Stock 階段？", "1"); if (stSaStg === null) return; 
+                let stSaCnt = prompt("樣品有幾支？", "1"); if(stSaCnt===null)return; 
+                for(let s=1; s<=parseInt(stSaStg||1); s++){ for(let i=1; i<=parseInt(stSaCnt||1); i++) stocks.push({item: "solution stability", sample: `Sa${i} stock ${s}`, conc: ""}); } 
+                for(let i=1; i<=parseInt(stSaCnt||1); i++) sas.push({item: "solution stability", sample: `Sa${i}`, conc: ""}); 
+                inputs.push(...stocks, ...sas); 
+                break;
+            case 'lod': 
+                let lodStg = prompt("【LOD】有幾個 Stock 階段？(若無填 0)", "1"); if (lodStg === null) return; 
+                for(let s=1; s<=parseInt(lodStg||0); s++) stocks.push({item: "LOD", sample: `stock ${s}`, conc: ""}); 
+                sas.push({item: "LOD", sample: "", conc: ""}); 
+                inputs.push(...stocks, ...sas); 
+                break;
+            case 'loq': 
+                let loqStg = prompt("【LOQ】有幾個 Stock 階段？(若無填 0)", "1"); if (loqStg === null) return; 
+                for(let s=1; s<=parseInt(loqStg||0); s++) stocks.push({item: "LOQ", sample: `stock ${s}`, conc: ""}); 
+                sas.push({item: "LOQ", sample: "", conc: ""}); 
+                inputs.push(...stocks, ...sas); 
+                break;
+        }
+        pushLabels(inputs);
+    }
+
+    function addRoutine(itemName, defaultSaCount, askResolution = true) {
+        let inputs = [];
+        let timePoints = [""]; 
+        let finalItemName = itemName;
+
+        if (itemName === "ID") {
+            let instrument = prompt("請輸入 ID 檢測儀器 (如: UV, PDA, IR)。若無須標示請直接按確定留空。", "");
+            if (instrument === null) return;
+            if (instrument.trim() !== "") { finalItemName = `${itemName} (${instrument.trim()})`; }
+        }
+
+        if (itemName.toLowerCase().includes("dissolution") || itemName.toLowerCase().includes("diss")) {
+            let msg = "【DISS 時間點設定】\n" +
+                      "👉 純數字預設為 hr (例如輸入 1, 10 會自動變成 1hr, 10hr)\n" +
+                      "👉 分鐘請自己加 min (例如 45min)\n" +
+                      "👉 若只需「單點」，請直接清空留白";
+            
+            let timeInput = prompt(msg, "1, 10, 15");
+            if (timeInput === null) return; 
+            if (timeInput.trim() !== "") {
+                timePoints = timeInput.split(",").map(t => {
+                    let trimmed = t.trim();
+                    if (/^\d+(\.\d+)?$/.test(trimmed)) return trimmed + "hr"; 
+                    return trimmed;
+                });
+            }
+        }
+
+        if (askResolution) {
+            if (confirm(`【${itemName}】需要配製 Resolution 嗎？`)) {
+                let resStages = prompt(`【Resolution】有幾個 Stock 階段？(若無填 0)`, "1"); 
+                if (resStages === null) return; 
+                let rStages = parseInt(resStages||0);
+                for(let i=1; i<=rStages; i++) inputs.push({item: finalItemName, sample: `Resolution stock ${i}`, conc: ""});
+                inputs.push({item: finalItemName, sample: "Resolution", conc: ""});
+            }
+        }
+        
+        let stdStages = prompt(`【${itemName}】STD 有幾個 Stock 階段？(若無填 0)`, "1"); 
+        if (stdStages === null) return;
+        let sStages = parseInt(stdStages||0);
+        for(let i=1; i<=sStages; i++) inputs.push({item: finalItemName, sample: `STD stock ${i}`, conc: ""});
+        inputs.push({item: finalItemName, sample: "STD", conc: ""});
+        
+        let saStages = prompt(`【${itemName}】樣品 (Sa) 有幾個 Stock 階段？(若無填 0)`, "1");
+        if (saStages === null) return;
+        let saStg = parseInt(saStages||0);
+
+        let saFinalCount = prompt(`【${itemName}】請確認最終樣品 (Sa) 有幾支？`, defaultSaCount); 
+        if (saFinalCount === null) return;
+        let count = parseInt(saFinalCount||defaultSaCount);
+
+        timePoints.forEach(tp => {
+            let displayItem = tp ? `${finalItemName} - ${tp}` : finalItemName;
+            for(let s=1; s<=saStg; s++) {
+                for(let i=1; i<=count; i++) {
+                    let suffix = (count === 1 && itemName === "ID") ? "" : i;
+                    inputs.push({item: displayItem, sample: `Sa${suffix} stock ${s}`.trim(), conc: ""});
+                }
+            }
+            for(let i=1; i<=count; i++) {
+                let suffix = (count === 1 && itemName === "ID") ? "" : i;
+                inputs.push({item: displayItem, sample: `Sa${suffix}`, conc: ""});
+            }
+        });
+        
+        pushLabels(inputs);
+    }
+
+    function clearPreview() { 
+        if(confirm("確定要清空嗎？")) { 
+            globalLabels = []; 
+            localStorage.removeItem("labMasterBackup");
+            renderPreview(); 
+        } 
+    }
+    
+    function removeSingleLabel(index) { 
+        globalLabels.splice(index, 1); 
+        renderPreview(); 
+    }
+
+    function getSortKey(l, b, origIdx) {
+        let sample = (l.sample || "").toLowerCase();
+        let item = (l.item || "").toLowerCase();
+        let isRes = sample.includes('resolution') || item.includes('resolution');
+        let isStd = sample.includes('std') || item.includes('std');
+        let isSys = item.includes('system');
+        let isBlank = sample.includes('blank') || sample.includes('placebo');
+
+        let isStock = sample.includes('stock');
+        let stockNum = 0;
+        if (isStock) {
+            let match = sample.match(/stock\s*(\d+)/);
+            if (match && match[1]) stockNum = parseInt(match[1]);
+            else stockNum = 1;
+        }
+
+        let cat = 4; 
+        if (isBlank) cat = 0;
+        else if (isRes) cat = 1;
+        else if (isStd || isSys) cat = 2;
+
+        let stage = isStock ? stockNum : 999; 
+
+        return { cat, stage, b, origIdx };
+    }
+
+    function renderPreview() {
+        const name = document.getElementById("userName").value.trim();
+        const code = document.getElementById("code").value.trim();
+        const startBatchNum = document.getElementById("startBatchNum").value.trim();
+        const batchCount = parseInt(document.getElementById("batchCount").value) || 1;
+        
+        const rawPrepDate = document.getElementById("prepDate").value.trim();
+        const rawExpDate = document.getElementById("expDate").value.trim();
+        
+        const width = document.getElementById("labelWidth").value;
+        const height = document.getElementById("labelHeight").value;
+        const isCompact = height < 20;
+
+        const up = parseFloat(document.getElementById("offsetUp").value) || 0;
+        const down = parseFloat(document.getElementById("offsetDown").value) || 0;
+        const left = parseFloat(document.getElementById("offsetLeft").value) || 0;
+        const right = parseFloat(document.getElementById("offsetRight").value) || 0;
+        const offsetX = right - left;
+        const offsetY = down - up;
+
+        if (name) localStorage.setItem("labUserName", name);
+        document.getElementById("dynamicPageSize").innerHTML = `@media print { @page { size: ${width}mm ${height}mm; margin: 0; } body { margin: 0; } }`;
+        const printArea = document.getElementById("printArea"); 
+        printArea.innerHTML = ""; 
+
+        function formatDateForLabel(dStr, compact) {
+            if(!dStr) return "";
+            if(dStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const p = dStr.split("-");
+                return compact ? `${p[1]}/${p[2]}` : `${p[0]}/${p[1]}/${p[2]}`;
+            }
+            return dStr.replace(/-/g, '/');
+        }
+
+        const prepDate = formatDateForLabel(rawPrepDate, isCompact);
+        const expDate = formatDateForLabel(rawExpDate, isCompact);
+
+        const fontSize = isCompact ? "8px" : (height >= 30 ? "13px" : "11px"); 
+        const padding = isCompact ? "1mm" : "1.5mm";
+        const lineHeight = isCompact ? "1.2" : "1.4";
+        
+        let combinedDatesLarge = "", combinedDatesSmall = "";
+        if (prepDate || expDate) {
+            combinedDatesLarge = [prepDate ? `配:${prepDate}` : '', expDate ? `效:${expDate}` : ''].filter(Boolean).join(" | ");
+            combinedDatesSmall = [prepDate ? `配:${prepDate}` : '', expDate ? `效:${expDate}` : ''].filter(Boolean).join(" ");
+        }
+
+        let flatLabels = [];
+        for (let b = 0; b < batchCount; b++) {
+            globalLabels.forEach((label, index) => {
+                const safeSample = label.sample || "";
+                const safeItem = label.item || "";
+                const isSampleRelated = (/Sa/i.test(safeSample) || /LOD/i.test(safeItem) || /LOQ/i.test(safeItem) || /linearity/i.test(safeItem));
+                const isSharedSolution = !isSampleRelated; 
+                
+                if (b > 0 && isSharedSolution) return; 
+                
+                flatLabels.push({ label, b, index });
+            });
+        }
+
+        if(flatLabels.length > 0) {
+            const countDiv = document.createElement("div"); countDiv.className = "hide-on-print"; 
+            countDiv.innerHTML = `🌟 目前共 <strong>${flatLabels.length}</strong> 張標籤 (已自動跨項目獨立分區)`;
+            countDiv.style.cssText = "font-size: 13px; color: #e67e22; font-weight: bold; margin-bottom: 5px;"; printArea.appendChild(countDiv);
+        }
+
+        let itemGroups = new Map();
+        flatLabels.forEach(data => {
+            let itemName = data.label.item || "未分類項目";
+            if (!itemGroups.has(itemName)) {
+                itemGroups.set(itemName, { prep: [], vial: [] });
+            }
+            if (data.label.sample && data.label.sample.toLowerCase().includes('(vial)')) {
+                itemGroups.get(itemName).vial.push(data);
+            } else {
+                itemGroups.get(itemName).prep.push(data);
+            }
+        });
+
+        const sorter = (A, B) => {
+            let keyA = getSortKey(A.label, A.b, A.index);
+            let keyB = getSortKey(B.label, B.b, B.index);
+            if (keyA.cat !== keyB.cat) return keyA.cat - keyB.cat;
+            if (keyA.stage !== keyB.stage) return keyA.stage - keyB.stage;
+            if (keyA.b !== keyB.b) return keyA.b - keyB.b;
+            return keyA.origIdx - keyB.origIdx;
+        };
+
+        let isFirstGroup = true;
+        itemGroups.forEach((group, itemName) => {
+            
+            if (!isFirstGroup) {
+                const projSep = document.createElement("div"); projSep.className = "hide-on-print";
+                projSep.innerHTML = `✂️ ------------------------------------------------ ✂️`;
+                projSep.style.cssText = "width: 100%; text-align: center; color: #95a5a6; padding: 15px 0; font-weight: bold; letter-spacing: 2px;";
+                printArea.appendChild(projSep);
+            }
+            isFirstGroup = false;
+
+            const projTitle = document.createElement("div"); projTitle.className = "hide-on-print";
+            projTitle.innerHTML = `📌 專案：<span style="color:#2980b9;">${itemName}</span>`;
+            projTitle.style.cssText = "width: 100%; font-size: 14px; font-weight: bold; background: #ecf0f1; padding: 8px; border-left: 5px solid #3498db; margin-bottom: 10px; border-radius: 4px;";
+            printArea.appendChild(projTitle);
+
+            group.prep.sort(sorter);
+            group.vial.sort(sorter);
+
+            group.prep.forEach(data => {
+                printArea.appendChild(buildLabelDOM(data.label, data.b, data.index));
+            });
+
+            if (group.vial.length > 0) {
+                const sepDiv = document.createElement("div"); sepDiv.className = "hide-on-print";
+                sepDiv.innerHTML = `🔻🔻🔻 <b>${itemName} - 上機溶液 (Vial 專區)</b> 🔻🔻🔻`;
+                sepDiv.style.cssText = "width: 100%; text-align: center; color: white; background: #e74c3c; padding: 8px; border-radius: 6px; font-size: 13px; margin: 15px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);";
+                printArea.appendChild(sepDiv);
+
+                group.vial.forEach(data => {
+                    printArea.appendChild(buildLabelDOM(data.label, data.b, data.index));
+                });
+            }
+        });
+
+        function buildLabelDOM(label, b, index) {
+            const labelDiv = document.createElement("div"); labelDiv.className = "label-box";
+            labelDiv.style.width = `${width}mm`; labelDiv.style.height = `${height}mm`;
+            labelDiv.style.fontSize = fontSize; labelDiv.style.padding = padding; labelDiv.style.lineHeight = lineHeight;
+
+            const contentDiv = document.createElement("div");
+            contentDiv.style.width = "100%"; contentDiv.style.height = "100%";
+            contentDiv.style.display = "flex"; contentDiv.style.flexDirection = "column";
+            contentDiv.style.justifyContent = "flex-start"; 
+            contentDiv.style.paddingTop = isCompact ? "0.5mm" : "2mm"; 
+            
+            contentDiv.style.transform = `translate(${offsetX}mm, ${offsetY}mm)`;
+
+            const safeSample = label.sample || "";
+            const safeItem = label.item || "";
+            const isSampleRelated = (/Sa/i.test(safeSample) || /LOD/i.test(safeItem) || /LOQ/i.test(safeItem) || /linearity/i.test(safeItem)); 
+            
+            let finalCodeDisplay = code;
+            if (isSampleRelated && startBatchNum !== "") {
+                const currentNum = parseInt(startBatchNum) + b;
+                const paddedNum = String(currentNum).padStart(startBatchNum.length, '0');
+                finalCodeDisplay = code ? `${code}-${paddedNum}` : paddedNum;
+            }
+
+            let itemStr = label.item || "";
+            let sampleStr = label.sample || "";
+            let baseSample = sampleStr;
+            let stockHtml = "";
+            let vialHtml = "";
+
+            // 🌟 替換為 Class 寫法，讓 CSS 控制列印行為
+            if (sampleStr.toLowerCase().includes('(vial)')) {
+                baseSample = baseSample.replace(/\(vial\)/ig, "").trim();
+                vialHtml = `<span class="badge-vial">Vial 上機</span>`;
+            }
+
+            const stockMatch = baseSample.match(/(stock\s*\d*)/i);
+            if (stockMatch) {
+                baseSample = baseSample.replace(stockMatch[1], "").trim();
+                stockHtml = `<span class="badge-stock">${stockMatch[1]}</span>`;
+            }
+
+            let dotsHtml = "";
+            if (isSampleRelated && batchCount > 1) {
+                let currentBatch = b + 1;
+                let starsCount = Math.floor(currentBatch / 5);
+                let dotsCount = currentBatch % 5;
+                let symbolStr = "★".repeat(starsCount) + "●".repeat(dotsCount);
+                dotsHtml = `<span style="font-weight:bold; font-size:1.1em; letter-spacing:1px; margin-left:2px;">${symbolStr}</span>`;
+            }
+
+            let lines = [];
+            if (!isCompact) {
+                if (finalCodeDisplay) lines.push(`<div style="font-size: 1.1em;"><strong>${finalCodeDisplay}</strong></div>`);
+                
+                if (itemStr) lines.push(`<div style="font-weight:bold; font-size: 1.1em; margin-top: 3px;">${itemStr}</div>`);
+                
+                let sampleLine = [baseSample, stockHtml, vialHtml, dotsHtml].filter(Boolean).join(" ");
+                if (sampleLine) lines.push(`<div style="font-weight:bold; font-size: 1.1em; margin-bottom: 3px;">${sampleLine}</div>`);
+                
+                if (label.conc) lines.push(`<div>${label.conc}</div>`);
+                if (name) lines.push(`<div>${name}</div>`);
+                if (combinedDatesLarge) lines.push(`<div>${combinedDatesLarge}</div>`);
+            } else {
+                if (finalCodeDisplay) lines.push(`<div style="white-space:nowrap; overflow:hidden;"><strong>${finalCodeDisplay}</strong></div>`);
+                
+                if (itemStr) {
+                    let itemFontSize = "1em";
+                    if (itemStr.length > 18) itemFontSize = "0.85em";
+                    lines.push(`<div style="font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:${itemFontSize};">${itemStr}</div>`);
+                }
+                
+                let sampleLine = [baseSample, stockHtml, vialHtml, dotsHtml].filter(Boolean).join(" ").trim();
+                if (sampleLine || !itemStr) {
+                    lines.push(`<div style="font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height: 1.2em;">${sampleLine}</div>`);
+                }
+                
+                if (label.conc) lines.push(`<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${label.conc}</div>`);
+                if (name) lines.push(`<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>`);
+                if (combinedDatesSmall) lines.push(`<div style="white-space:nowrap; overflow:hidden;">${combinedDatesSmall}</div>`);
+            }
+            contentDiv.innerHTML = lines.join("");
+
+            const delBtn = document.createElement("button"); 
+            delBtn.innerHTML = "✖"; 
+            delBtn.className = "btn-delete hide-on-print";
+            delBtn.onclick = function() { 
+                let displayItem = [itemStr, baseSample].filter(Boolean).join(" - ");
+                if(batchCount > 1 && isSampleRelated) {
+                    if(confirm(`注意：這會將所有批次的【${displayItem}】一併從預覽區刪除喔！\n確定要刪除嗎？`)) {
+                        removeSingleLabel(index);
+                    }
+                } else {
+                    removeSingleLabel(index);
+                }
+            };
+            labelDiv.appendChild(delBtn);
+            
+            labelDiv.appendChild(contentDiv);
+            return labelDiv;
+        }
+
+        saveBackup();
+    }
+
+    function saveBackup() {
+        const backupData = {
+            labels: globalLabels,
+            inputs: {
+                userName: document.getElementById("userName").value,
+                code: document.getElementById("code").value,
+                startBatchNum: document.getElementById("startBatchNum").value,
+                batchCount: document.getElementById("batchCount").value,
+                prepDate: document.getElementById("prepDate").value,
+                expDate: document.getElementById("expDate").value,
+                targetSolvent: document.getElementById("targetSolvent").value,
+                useChromatography: document.getElementById("useChromatography").checked,
+                labelWidth: document.getElementById("labelWidth").value,
+                labelHeight: document.getElementById("labelHeight").value,
+                offsetUp: document.getElementById("offsetUp").value,
+                offsetDown: document.getElementById("offsetDown").value,
+                offsetLeft: document.getElementById("offsetLeft").value,
+                offsetRight: document.getElementById("offsetRight").value
+            }
+        };
+        localStorage.setItem("labMasterBackup", JSON.stringify(backupData));
+    }
+
+    function printLabels() {
+        if(globalLabels.length === 0) return alert("⚠️ 預覽區沒有標籤喔！");
+        window.print();
+    }
+
+    const LABELS_PER_QR = 5; 
+    let qrChunks = [];
+    let currentQRIndex = 0;
+    let scannedPayloads = new Set(); 
+    let currentBatchId = null;
+    let scannedPagesCount = 0;
+
+    function generateQR() {
+        if(globalLabels.length === 0) return alert("⚠️ 沒有標籤可產生 QR Code！");
+        qrChunks = []; currentQRIndex = 0;
+        const batchId = new Date().getTime().toString(36).slice(-4); 
+        const totalPages = Math.ceil(globalLabels.length / LABELS_PER_QR);
+        
+        const safe = (str) => (str||"").replace(/\|/g, "").replace(/\^/g, "");
+        const uName = document.getElementById("userName").value.trim();
+        const uCode = document.getElementById("code").value.trim();
+        const sBatch = document.getElementById("startBatchNum").value.trim();
+        const bCount = document.getElementById("batchCount").value.trim();
+        const pDate = document.getElementById("prepDate").value.trim();
+        const eDate = document.getElementById("expDate").value.trim();
+        const metaStr = `${safe(uName)}^${safe(uCode)}^${safe(sBatch)}^${safe(bCount)}^${safe(pDate)}^${safe(eDate)}`;
+
+        for (let i = 0; i < globalLabels.length; i += LABELS_PER_QR) {
+            const chunkLabels = globalLabels.slice(i, i + LABELS_PER_QR);
+            const dataStr = chunkLabels.map(l => `${l.item||""}|${l.sample||""}|${l.conc||""}`).join("~");
+            const currentPage = Math.floor(i / LABELS_PER_QR) + 1;
+            const header = `${batchId}|${currentPage}|${totalPages}|${metaStr}|`; 
+            qrChunks.push(encodeURIComponent(header + dataStr));
+        }
+        document.getElementById("qrModal").style.display = "flex"; renderCurrentQR();
+    }
+
+    function renderCurrentQR() {
+        const pageInfo = document.getElementById("qrPageInfo");
+        if(pageInfo) pageInfo.innerText = `第 ${currentQRIndex + 1} 頁 (共 ${qrChunks.length} 頁)`;
+        new QRious({ element: document.getElementById("qrCanvas"), value: qrChunks[currentQRIndex], size: 350, level: 'L' });
+    }
+
+    function prevQR() { if (currentQRIndex > 0) { currentQRIndex--; renderCurrentQR(); } }
+    function nextQR() { if (currentQRIndex < qrChunks.length - 1) { currentQRIndex++; renderCurrentQR(); } }
+    function closeQR() { document.getElementById("qrModal").style.display = "none"; }
+
+    function startScanner() {
+        const video = document.getElementById("videoElement"); const modal = document.getElementById("scannerModal");
+        scannedPayloads.clear(); currentBatchId = null; scannedPagesCount = 0;
+        const statusText = document.getElementById("scanStatusText");
+        if(statusText) { statusText.innerText = "請將手機第一頁條碼對準鏡頭"; statusText.style.color = "#f1c40f"; }
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+            scanningActive = true; videoStream = stream; video.srcObject = stream; video.setAttribute("playsinline", true);
+            video.play(); modal.style.display = "flex"; requestAnimationFrame(tick);
+        }).catch(function(err) { alert("❌ 無法開啟相機，請確認鏡頭權限！"); });
+    }
+
+    function stopScanner() { 
+        scanningActive = false; if(videoStream) { videoStream.getTracks().forEach(track => track.stop()); } 
+        document.getElementById("scannerModal").style.display = "none"; 
+    }
+
+    function decodeAndImportQR(qrData) {
+        try {
+            const decodedString = decodeURIComponent(qrData);
+            if (scannedPayloads.has(decodedString)) return false; 
+            
+            let dataToParse = decodedString; let isPaged = false; let currentPage = 1, totalPages = 1, batchMark = "";
+            const parts = decodedString.split("|");
+            
+            if (parts.length >= 5 && !isNaN(parseInt(parts[1])) && !isNaN(parseInt(parts[2]))) {
+                isPaged = true; batchMark = parts[0]; currentPage = parseInt(parts[1]); totalPages = parseInt(parts[2]);
+                
+                const metaParts = parts[3].split("^");
+                if(metaParts.length === 6 && currentPage === 1) {
+                    document.getElementById("userName").value = metaParts[0];
+                    document.getElementById("code").value = metaParts[1];
+                    document.getElementById("startBatchNum").value = metaParts[2];
+                    document.getElementById("batchCount").value = metaParts[3];
+                    document.getElementById("prepDate").value = metaParts[4];
+                    document.getElementById("expDate").value = metaParts[5];
+                }
+
+                const headerLength = parts[0].length + parts[1].length + parts[2].length + parts[3].length + 4; 
+                dataToParse = decodedString.substring(headerLength);
+            } else if (parts.length >= 4 && !isNaN(parseInt(parts[1]))) {
+                isPaged = true; batchMark = parts[0]; currentPage = parseInt(parts[1]); totalPages = parseInt(parts[2]);
+                const headerLength = parts[0].length + parts[1].length + parts[2].length + 3; 
+                dataToParse = decodedString.substring(headerLength);
+            }
+
+            let imported = [];
+            if (dataToParse.startsWith("[")) { imported = JSON.parse(dataToParse); } 
+            else { imported = dataToParse.split("~").map(row => { const p = row.split("|"); return { item: p[0]||"", sample: p[1]||"", conc: p[2]||"" }; }); }
+            
+            if (Array.isArray(imported) && imported.length > 0) {
+                scannedPayloads.add(decodedString); globalLabels = globalLabels.concat(imported); renderPreview(); playBeep(); 
+                
+                const statusText = document.getElementById("scanStatusText");
+                if (isPaged) {
+                    if (currentBatchId !== batchMark) { currentBatchId = batchMark; scannedPagesCount = 0; }
+                    scannedPagesCount++;
+                    if (scannedPagesCount >= totalPages) {
+                        statusText.innerText = `🎉 掃描完成！共匯入 ${totalPages} 頁`; statusText.style.color = "#2ecc71";
+                        setTimeout(stopScanner, 1500); 
+                    } else {
+                        statusText.innerText = `✅ 成功接收：第 ${currentPage} 頁 / 共 ${totalPages} 頁\n👉 請滑動手機到下一頁！`;
+                        statusText.style.color = "#2ecc71"; 
+                    }
+                    return false; 
+                } else {
+                    alert(`✅ 成功掃描，已匯入 ${imported.length} 張標籤！`); return true; 
+                }
+            }
+        } catch(err) { console.error(err); }
+        return false;
+    }
+
+    function tick() {
+        if (!scanningActive) return; const video = document.getElementById("videoElement");
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            const canvas = document.createElement("canvas"); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d"); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+            if (code) { if(decodeAndImportQR(code.data)) { stopScanner(); return; } }
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function playBeep() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext; const ctx = new AudioContext();
+            const osc = ctx.createOscillator(); const gainNode = ctx.createGain();
+            osc.connect(gainNode); gainNode.connect(ctx.destination);
+            osc.type = "sine"; osc.frequency.value = 880; 
+            gainNode.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    }
+
+    function exportJSON() {
+        if(globalLabels.length === 0) return alert("⚠️ 預覽區目前是空的，沒有東西可以存成母版喔！");
+        
+        const exportData = {
+            metadata: {
+                userName: document.getElementById("userName").value.trim(),
+                code: document.getElementById("code").value.trim(),
+                startBatchNum: document.getElementById("startBatchNum").value.trim(),
+                batchCount: document.getElementById("batchCount").value.trim(),
+                prepDate: document.getElementById("prepDate").value.trim(),
+                expDate: document.getElementById("expDate").value.trim(),
+                labelWidth: document.getElementById("labelWidth").value,
+                labelHeight: document.getElementById("labelHeight").value,
+                offsetUp: document.getElementById("offsetUp").value,
+                offsetDown: document.getElementById("offsetDown").value,
+                offsetLeft: document.getElementById("offsetLeft").value,
+                offsetRight: document.getElementById("offsetRight").value
+            },
+            labels: globalLabels
+        };
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
+        const fileName = `母版_${document.getElementById("code").value || "實驗專案"}.json`;
+        const a = document.createElement('a'); a.href = dataStr; a.download = fileName;
+        document.body.appendChild(a); a.click(); a.remove();
+    }
+    
+    function importJSON(event) {
+        const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                
+                if (Array.isArray(imported)) { 
+                    globalLabels = globalLabels.concat(imported); 
+                    renderPreview(); 
+                    alert(`✅ 成功匯入 ${imported.length} 張標籤！(舊版格式)`); 
+                } 
+                else if (imported.labels && Array.isArray(imported.labels)) {
+                    if (imported.metadata) {
+                        if(imported.metadata.userName) document.getElementById("userName").value = imported.metadata.userName;
+                        if(imported.metadata.code) document.getElementById("code").value = imported.metadata.code;
+                        if(imported.metadata.startBatchNum) document.getElementById("startBatchNum").value = imported.metadata.startBatchNum;
+                        if(imported.metadata.batchCount) document.getElementById("batchCount").value = imported.metadata.batchCount;
+                        if(imported.metadata.prepDate) document.getElementById("prepDate").value = imported.metadata.prepDate;
+                        if(imported.metadata.expDate) document.getElementById("expDate").value = imported.metadata.expDate;
+                        if(imported.metadata.labelWidth) document.getElementById("labelWidth").value = imported.metadata.labelWidth;
+                        if(imported.metadata.labelHeight) document.getElementById("labelHeight").value = imported.metadata.labelHeight;
+                        
+                        if(imported.metadata.offsetUp !== undefined) document.getElementById("offsetUp").value = imported.metadata.offsetUp;
+                        if(imported.metadata.offsetDown !== undefined) document.getElementById("offsetDown").value = imported.metadata.offsetDown;
+                        if(imported.metadata.offsetLeft !== undefined) document.getElementById("offsetLeft").value = imported.metadata.offsetLeft;
+                        if(imported.metadata.offsetRight !== undefined) document.getElementById("offsetRight").value = imported.metadata.offsetRight;
+                        if(imported.metadata.offsetX !== undefined) {
+                            let ox = parseFloat(imported.metadata.offsetX);
+                            if(ox > 0) document.getElementById("offsetRight").value = ox;
+                            else if(ox < 0) document.getElementById("offsetLeft").value = Math.abs(ox);
+                        }
+                        if(imported.metadata.offsetY !== undefined) {
+                            let oy = parseFloat(imported.metadata.offsetY);
+                            if(oy > 0) document.getElementById("offsetDown").value = oy;
+                            else if(oy < 0) document.getElementById("offsetUp").value = Math.abs(oy);
+                        }
+                    }
+
+                    if(globalLabels.length > 0) {
+                        if(confirm("📥 讀取母版：是否要【清空】目前預覽區的標籤，完全載入母版？\n(按『確定』清空覆蓋，按『取消』則附加在最後面)")) {
+                            globalLabels = imported.labels;
+                        } else {
+                            globalLabels = globalLabels.concat(imported.labels);
+                        }
+                    } else {
+                        globalLabels = imported.labels;
+                    }
+                    
+                    renderPreview(); 
+                    alert(`✅ 成功載入母版！共 ${imported.labels.length} 張標籤設定。\n👉 您可以直接修改「起始批號」後列印！`); 
+                }
+            } catch(err) { alert("❌ JSON 格式錯誤！無法讀取母版。"); }
+        }; reader.readAsText(file); event.target.value = ''; 
+    }
+
+    function readQRImage(event) {
+        const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+                canvas.width = img.width; canvas.height = img.height; ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "attemptBoth" });
+                if (code) { if(!decodeAndImportQR(code.data)) alert("❌ 解析失敗，內容不符。"); } else { alert("❌ 解析不到 QR Code！"); }
+            }; img.src = e.target.result;
+        }; reader.readAsDataURL(file); event.target.value = '';
+    }
+</script>
+
+</body>
+</html>
